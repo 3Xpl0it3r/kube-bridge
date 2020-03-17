@@ -5,6 +5,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"l0calh0st.cn/k8s-bridge/pkg/controller"
 	kube_resource "l0calh0st.cn/k8s-bridge/pkg/operator/kube-resource"
@@ -14,7 +15,7 @@ type kubeResourceServiceController struct {
 	kubeResourceController
 }
 
-func NewKubeResourceServiceController(clientSet kubernetes.Interface)controller.Controller{
+func NewKubeResourceServiceController(clientSet kubernetes.Interface,restConfig *rest.Config)controller.Controller{
 	return &kubeResourceServiceController{kubeResourceController{
 		HookManager: controller.HookManager{},
 		clientSet:clientSet,

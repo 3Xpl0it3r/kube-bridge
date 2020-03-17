@@ -2,6 +2,8 @@ package kube_resource
 
 import (
 	"context"
+	"fmt"
+	"k8s.io/client-go/rest"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/informers"
@@ -15,12 +17,11 @@ type kubeResourcePodController struct {
 	kubeResourceController
 }
 
-func NewKubeResourcePodController(clientSet kubernetes.Interface)controller.Controller{
+func NewKubeResourcePodController(clientSet kubernetes.Interface, restConfig *rest.Config)controller.Controller{
 	return &kubeResourcePodController{kubeResourceController{
 		HookManager: controller.HookManager{},
 		clientSet:clientSet,
-		operator: kube_resource.NewPodOperator(clientSet),
-
+		operator: kube_resource.NewPodOperator(clientSet, restConfig),
 	}}
 }
 
@@ -31,6 +32,7 @@ func(c *kubeResourcePodController)Run(ctx context.Context)error{
 		UpdateFunc: c.onUpdate,
 		DeleteFunc: c.onDelete,
 	})
+
 	informer.Run(ctx.Done())
 	<- ctx.Done()
 	return ctx.Err()
@@ -38,10 +40,15 @@ func(c *kubeResourcePodController)Run(ctx context.Context)error{
 
 
 func(c *kubeResourcePodController)onAdd(object interface{}){
-	newObj := object.(*corev1.Pod)
+	newObj,ok := object.(*corev1.Pod)
+	if !ok {
+		return
+	}
+	fmt.Println(newObj.Name)
 	if _, ok := newObj.Labels[LABEL_FLAG] ;!ok  {
 		return
 	}
+
 	if err := c.operator.AddOperator(object);err != nil {
 	}
 	for _, hook := range c.HookManager.GetHooks(){
@@ -49,21 +56,11 @@ func(c *kubeResourcePodController)onAdd(object interface{}){
 	}
 }
 func(c *kubeResourcePodController)onDelete(object interface{}){
-	object, _ = object.(*corev1.Pod)
-	if err := c.operator.DeleteOperator(object);err != nil {
-
-	}
 	for _, hook := range c.HookManager.GetHooks(){
 		hook.OnDelete(object)
 	}
-
 }
 func(c *kubeResourcePodController)onUpdate(oldObj, newObj interface{}){
-	oldObj, _ = oldObj.(*corev1.Pod)
-	newObj, _ = newObj.(*corev1.Pod)
-	if err := c.operator.UpdateOperator(newObj);err != nil {
-
-	}
 	for _, hook := range c.HookManager.GetHooks(){
 		hook.OnUpdate(newObj)
 	}
