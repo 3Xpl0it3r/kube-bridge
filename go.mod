@@ -9,6 +9,7 @@ require (
 	github.com/imdario/mergo v0.3.8 // indirect
 	github.com/onsi/ginkgo v1.10.1
 	github.com/onsi/gomega v1.7.0
+	github.com/sirupsen/logrus v1.4.2
 	github.com/stretchr/testify v1.5.1 // indirect
 	golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4 // indirect
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a // indirect

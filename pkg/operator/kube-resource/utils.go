@@ -1,7 +1,6 @@
 package kube_resource
 
 import (
-	"fmt"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
@@ -10,9 +9,9 @@ import (
 	"os"
 )
 
-func PodRemoteCommandExec(clientSet kubernetes.Interface, restConf *rest.Config,pod *corev1.Pod)error{
+func PodRemoteCommandExec(clientSet kubernetes.Interface, restConf *rest.Config,pod *corev1.Pod, cmd ...string)error{
 
-	command := []string{"/bin/sh", "-c", "echo '114.114.114.114' >>  /etc/resolv.conf"}
+	command := cmd
 	req := clientSet.CoreV1().RESTClient().Post().Resource("pods").
 		Name(pod.Name).
 		Namespace(pod.Namespace).
@@ -34,11 +33,9 @@ func PodRemoteCommandExec(clientSet kubernetes.Interface, restConf *rest.Config,
 	}, parameterCodec)
 
 	exec,err := remotecommand.NewSPDYExecutor(restConf, "POST", req.URL())
-	fmt.Println(err)
 	if err!= nil {
 		return err
 	}
-
 	err = exec.Stream(remotecommand.StreamOptions{
 		Stdin:             nil,
 		Stdout:           	os.Stdout,
@@ -46,7 +43,5 @@ func PodRemoteCommandExec(clientSet kubernetes.Interface, restConf *rest.Config,
 		Tty:               false,
 	})
 
-	fmt.Println("----------->", err)
-	fmt.Println(err)
 	return err
 }

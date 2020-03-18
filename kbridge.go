@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
+	"github.com/sirupsen/logrus"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -19,22 +19,31 @@ var (
 	kubeConfig = flag.String("kubeConfig", "", "")
 )
 
+var (
+	DEBUG bool = true
+)
+
 
 
 func main() {
 	flag.Parse()
 
+	if DEBUG {logrus.SetLevel(logrus.DebugLevel)}
 
+
+	logrus.Infoln("Initialize KubeConfig and kubeClientSet")
 	restConfig, kubeClientSet, err := initializeRestConfigAndClientSet()
 	if err!=nil{
-		panic(err)
+		logrus.WithError(err).Fatal("Unable to build kubeClient and kubeConfig")
 	}
 	ctx,cancelFunc := context.WithCancel(context.Background())
 	defer cancelFunc()
+
+	logrus.Infoln("Starting the kubeResourceServiceController...")
 	kubeResourceServiceController := kube_resource.NewKubeResourceServiceController(kubeClientSet, restConfig)
 	go runController(ctx, kubeResourceServiceController)
 
-
+	logrus.Infoln("Starting the kubeResourcePodController...")
 	kubeResourcePodController := kube_resource.NewKubeResourcePodController(kubeClientSet, restConfig)
 	go runController(ctx, kubeResourcePodController)
 
@@ -48,9 +57,7 @@ func main() {
 
 func runController(ctx context.Context, controller controller.Controller){
 	if err := controller.Run(ctx);err !=nil {
-		fmt.Println("controller run failed ", err.Error())
-	} else {
-		fmt.Printf("controller running \n")
+		logrus.WithError(err).Fatalln("Unable to run the controller")
 	}
 }
 

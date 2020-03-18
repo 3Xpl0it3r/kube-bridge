@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a70240cd-03e5-45e8-808a-20be96a73cd1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/pkg/operator/kube-resource/utils.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/logging/kuberesource.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/operator/kube-resource/ingress.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kbridge.go" beforeDir="false" afterPath="$PROJECT_DIR$/kbridge.go" afterDir="false" />
@@ -10,6 +13,8 @@
       <change beforePath="$PROJECT_DIR$/pkg/controller/kube-resource/pod.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/kube-resource/pod.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/controller/kube-resource/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/kube-resource/service.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/operator/kube-resource/pod.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/operator/kube-resource/pod.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/operator/kube-resource/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/operator/kube-resource/service.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/operator/kube-resource/utils.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/operator/kube-resource/utils.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,6 +49,7 @@
     <property name="go.sdk.automatically.set" value="true" />
     <property name="go.tried.to.enable.integration.vgo.integrator" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="go.vgo" />
   </component>
   <component name="ServiceViewManager">
     <option name="viewStates">
@@ -62,9 +68,17 @@
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
-    <proxy>direct</proxy>
+    <proxy>https://goproxy.cn</proxy>
   </component>
   <component name="WindowStateProjectService">
+    <state x="214" y="34" width="932" height="734" key="SettingsEditor" timestamp="1584535461281">
+      <screen x="0" y="31" width="1360" height="737" />
+    </state>
+    <state x="214" y="34" width="932" height="734" key="SettingsEditor/0.31.1360.737@0.31.1360.737" timestamp="1584535461281" />
+    <state x="249" y="31" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1584532930273">
+      <screen x="0" y="31" width="1360" height="737" />
+    </state>
+    <state x="249" y="31" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/0.31.1360.737@0.31.1360.737" timestamp="1584532930273" />
     <state x="343" y="89" width="672" height="678" key="search.everywhere.popup" timestamp="1584474917500">
       <screen x="0" y="31" width="1360" height="737" />
     </state>

@@ -9,7 +9,10 @@ import (
 
 
 const (
-	LABEL_FLAG = "kubebridge"
+	LABEL_SELECTOR_KUBE_BRIDGE_MODULE = "kubeBridgeType=external"
+	KUBE_BRIDGE_MODULE_STATE = "kubeBridgeState"
+	KUBE_BRIDGE_MODULE_READY = "READY"
+	KUBE_BRIDGE_MODULE_UPDATING = "UPDATING"
 )
 
 type kubeResourceController struct {
