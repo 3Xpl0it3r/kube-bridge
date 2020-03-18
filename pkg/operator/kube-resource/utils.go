@@ -6,8 +6,19 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/remotecommand"
+	"l0calh0st.cn/k8s-bridge/configure"
 	"os"
 )
+
+
+var kubeResourceConfig *configure.Config
+
+func init() {
+	kubeResourceConfig = configure.NewConfig()
+	kubeResourceConfig.ReadFromFile()
+}
+
+
 
 func PodRemoteCommandExec(clientSet kubernetes.Interface, restConf *rest.Config,pod *corev1.Pod, cmd ...string)error{
 

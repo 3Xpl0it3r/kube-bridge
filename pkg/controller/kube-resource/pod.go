@@ -103,7 +103,7 @@ func(c *kubeResourcePodController)onDelete(object interface{}){
 	}
 }
 func(c *kubeResourcePodController)onUpdate(oldObj, newObj interface{}){
-	// check is pod has config crosscluster
+	// check is pod has configure crosscluster
 	logging.LogKubeResourceController("pod").Infof("pod %s is updated,then deliver to onAdd()\n", newObj.(*corev1.Pod).Name)
 	c.onAdd(newObj)
 	for _, hook := range c.HookManager.GetHooks(){

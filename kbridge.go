@@ -8,6 +8,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"l0calh0st.cn/k8s-bridge/pkg/controller"
+	"l0calh0st.cn/k8s-bridge/pkg/controller/dns"
 	"l0calh0st.cn/k8s-bridge/pkg/controller/kube-resource"
 	"os"
 	"os/signal"
@@ -24,12 +25,11 @@ var (
 )
 
 
-
 func main() {
 	flag.Parse()
 
-	if DEBUG {logrus.SetLevel(logrus.DebugLevel)}
 
+	if DEBUG {logrus.SetLevel(logrus.DebugLevel)}
 
 	logrus.Infoln("Initialize KubeConfig and kubeClientSet")
 	restConfig, kubeClientSet, err := initializeRestConfigAndClientSet()
@@ -46,6 +46,10 @@ func main() {
 	logrus.Infoln("Starting the kubeResourcePodController...")
 	kubeResourcePodController := kube_resource.NewKubeResourcePodController(kubeClientSet, restConfig)
 	go runController(ctx, kubeResourcePodController)
+
+	logrus.Infof("Start dns controller ......")
+	dnsController := dns.NewDNSController()
+	go runController(ctx, dnsController)
 
 	stopCh := make(chan os.Signal)
 	signal.Notify(stopCh, syscall.SIGTERM, syscall.SIGINT)

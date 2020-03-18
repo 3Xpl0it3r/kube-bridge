@@ -1,6 +1,7 @@
 package kube_resource
 
 import (
+	"fmt"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -17,7 +18,7 @@ func NewPodOperator(clientSet kubernetes.Interface, restConfig *rest.Config)Oper
 
 //
 func(op *podOperator)AddOperator(object interface{})error{
-	addDns := []string{"/bin/sh", "-c", "echo '114.114.114.114' >>  /etc/resolv.conf"}
+	addDns := []string{"/bin/sh", "-c", fmt.Sprintf("echo '%s' >>  /etc/resolv.conf", kubeResourceConfig.Address)}
 	return op.executeRemoteCommand(object.(*corev1.Pod), addDns...)
 }
 
