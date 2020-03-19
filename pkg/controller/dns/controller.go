@@ -21,8 +21,9 @@ func NewKubeBridgeDnsController()controller.Controller{
 
 
 func(c *kubeBridgeDnsController)Run(ctx context.Context)error{
-	c.server.Run()
-	return nil
+	c.server.Run(ctx)
+	<- ctx.Done()
+	return ctx.Err()
 }
 
 func(c *kubeBridgeDnsController)AddHook(hook controller.Hook)error{

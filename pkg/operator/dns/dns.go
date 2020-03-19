@@ -1,8 +1,10 @@
 package dns
 
 import (
+	"context"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
+	"l0calh0st.cn/k8s-bridge/pkg/logging"
 	"net"
 )
 //
@@ -33,7 +35,7 @@ func NewRealDnsServer()Operator{
 
 
 
-func(op *realDnsServer)Run()error{
+func(op *realDnsServer)Run(ctx context.Context)error{
 	var err error
 	bindAddr := &net.UDPAddr{
 		IP:   net.ParseIP(op.dnsConf.address),
@@ -41,6 +43,18 @@ func(op *realDnsServer)Run()error{
 		Zone: "",
 	}
 	op.server,err = net.ListenUDP("udp", bindAddr)
+
+	media := make(chan mediator)
+	go func() {
+		if err = op.runService(ctx, media);err != nil {
+			logging.LogDnsServerController().WithError(err).Error("dns server run server module for accept request from client failed")
+		}
+	}()
+	go func() {
+		if err = op.runClient(ctx, media);err != nil {
+			logging.LogDnsServerController().WithError(err).Error("dns client module run failed")
+		}
+	}()
 	return err
 }
 
@@ -58,7 +72,7 @@ func(op *realDnsServer)UpdateZone(object interface{})error{
 	//todo
 	return nil
 }
-func(op* realDnsServer)runService(object chan <- mediator)error{
+func(op* realDnsServer)runService(ctx context.Context,object chan <- mediator)error{
 	//todo
 	var buffer []byte = make([]byte, 512)
 	for{
@@ -66,18 +80,24 @@ func(op* realDnsServer)runService(object chan <- mediator)error{
 		if err != nil{
 			return nil
 		}
-		object <- mediator{
+		select {
+		case object<- mediator{
 			clientAddr: clientAddr,
 			body:       buffer,
+		}:
+		case <-ctx.Done():
+			return ctx.Err()
 		}
 	}
 }
 
-func(op *realDnsServer)runClient(object <- chan mediator){
+func(op *realDnsServer)runClient(ctx context.Context,object <- chan mediator)error{
 	for ; ; {
 		select {
 		case tmpmedia := <- object:
 			go op.handleRequestAndResponse(tmpmedia.clientAddr, tmpmedia.body)
+		case <- ctx.Done():
+			return ctx.Err()
 		}
 	}
 }
@@ -117,6 +137,4 @@ func(op* realDnsServer)handleRequestAndResponse(clientAddr net.Addr, request []b
 		panic(err)
 	}
 	op.server.WriteTo(buf.Bytes(), clientAddr)
-
-
 }
