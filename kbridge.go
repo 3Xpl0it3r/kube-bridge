@@ -9,7 +9,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"l0calh0st.cn/k8s-bridge/pkg/controller"
 	"l0calh0st.cn/k8s-bridge/pkg/controller/dns"
-	"l0calh0st.cn/k8s-bridge/pkg/controller/kube-resource"
+	kube_resource "l0calh0st.cn/k8s-bridge/pkg/controller/kube-resource"
 	"os"
 	"os/signal"
 	"syscall"
@@ -48,7 +48,7 @@ func main() {
 	go runController(ctx, kubeResourcePodController)
 
 	logrus.Infof("Start dns controller ......")
-	dnsController := dns.NewDNSController()
+	dnsController := dns.NewKubeBridgeDnsController()
 	go runController(ctx, dnsController)
 
 	stopCh := make(chan os.Signal)

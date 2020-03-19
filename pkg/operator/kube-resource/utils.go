@@ -15,7 +15,6 @@ var kubeResourceConfig *configure.Config
 
 func init() {
 	kubeResourceConfig = configure.NewConfig()
-	kubeResourceConfig.ReadFromFile()
 }
 
 

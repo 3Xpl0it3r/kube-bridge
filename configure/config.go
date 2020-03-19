@@ -3,11 +3,21 @@ package configure
 import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"sync"
 )
 
 type Config struct {
-	Address string `json:"address"`
+	Address string `json:"localaddress"`
+	Dns struct{
+		Bind string `json:"bind"`
+		Port int `json:"port"`
+	} `json:"dns"`
 }
+
+var (
+	configInstance *Config
+	once sync.Once
+)
 
 func init() {
 	viper.AddConfigPath("./")
@@ -17,10 +27,14 @@ func init() {
 
 
 func NewConfig()*Config{
-	return &Config{}
+	once.Do(func() {
+		configInstance = &Config{}
+		configInstance.readFromFile()
+	})
+	return configInstance
 }
 
-func(c *Config)ReadFromFile(){
+func(c *Config)readFromFile(){
 	var filename string = "config"
 	viper.SetConfigName(filename)
 	if err := viper.ReadInConfig();err != nil {
@@ -31,3 +45,5 @@ func(c *Config)ReadFromFile(){
 	}
 	logrus.Infof(c.Address)
 }
+
+

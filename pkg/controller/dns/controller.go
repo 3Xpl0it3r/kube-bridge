@@ -3,24 +3,31 @@ package dns
 import (
 	"context"
 	"l0calh0st.cn/k8s-bridge/pkg/controller"
+	"l0calh0st.cn/k8s-bridge/pkg/operator/dns"
 )
 
-type domainNameResolveController struct {
 
+
+
+
+type kubeBridgeDnsController struct {
+	server dns.Operator
 }
 
 
-func NewDNSController()controller.Controller{
-	return &domainNameResolveController{}
+func NewKubeBridgeDnsController()controller.Controller{
+	return &kubeBridgeDnsController{server:nil}
 }
 
-func(c * domainNameResolveController)Run(ctx context.Context)error{
+
+func(c *kubeBridgeDnsController)Run(ctx context.Context)error{
+	c.server.Run()
 	return nil
 }
 
-func(c *domainNameResolveController)AddHook(hook controller.Hook)error{
+func(c *kubeBridgeDnsController)AddHook(hook controller.Hook)error{
 	return nil
 }
-func(c *domainNameResolveController)RemoveHook(hook controller.Hook)error{
+func(c *kubeBridgeDnsController)RemoveHook(hook controller.Hook)error{
 	return nil
 }
