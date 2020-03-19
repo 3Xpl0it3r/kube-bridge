@@ -34,7 +34,6 @@ func NewRealDnsServer()Operator{
 }
 
 
-
 func(op *realDnsServer)Run(ctx context.Context)error{
 	var err error
 	bindAddr := &net.UDPAddr{
@@ -45,6 +44,7 @@ func(op *realDnsServer)Run(ctx context.Context)error{
 	op.server,err = net.ListenUDP("udp", bindAddr)
 
 	media := make(chan mediator)
+	defer close(media)
 	go func() {
 		if err = op.runService(ctx, media);err != nil {
 			logging.LogDnsServerController().WithError(err).Error("dns server run server module for accept request from client failed")
