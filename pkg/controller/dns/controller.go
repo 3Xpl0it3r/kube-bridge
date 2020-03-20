@@ -16,7 +16,7 @@ type kubeBridgeDnsController struct {
 
 
 func NewKubeBridgeDnsController()controller.Controller{
-	return &kubeBridgeDnsController{server:nil}
+	return &kubeBridgeDnsController{server: dns.NewRealDnsServer()}
 }
 
 

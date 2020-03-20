@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
+	"github.com/sirupsen/logrus"
 	"l0calh0st.cn/k8s-bridge/pkg/logging"
 	"net"
 )
@@ -33,8 +34,11 @@ func NewRealDnsServer()Operator{
 	}
 }
 
-
+// Run is the entrypoint of real dns server
 func(op *realDnsServer)Run(ctx context.Context)error{
+	if op.dnsConf == (dnsConfig{}) {
+		op.dnsConf = *op.getDefaultDnsConfig()
+	}
 	var err error
 	bindAddr := &net.UDPAddr{
 		IP:   net.ParseIP(op.dnsConf.address),
@@ -42,6 +46,9 @@ func(op *realDnsServer)Run(ctx context.Context)error{
 		Zone: "",
 	}
 	op.server,err = net.ListenUDP("udp", bindAddr)
+	if err != nil {
+		logrus.WithError(err).Error("real dns server start filed")
+	}
 
 	media := make(chan mediator)
 	defer close(media)
@@ -55,7 +62,8 @@ func(op *realDnsServer)Run(ctx context.Context)error{
 			logging.LogDnsServerController().WithError(err).Error("dns client module run failed")
 		}
 	}()
-	return err
+	<-ctx.Done()
+	return ctx.Err()
 }
 
 func(op *realDnsServer)AddZone(object interface{})error{
@@ -103,6 +111,9 @@ func(op *realDnsServer)runClient(ctx context.Context,object <- chan mediator)err
 }
 
 func(op* realDnsServer)handleRequestAndResponse(clientAddr net.Addr, request []byte){
+	// logfor del
+	logrus.Error("this is handleRequest AndResponse")
+	logrus.WithField("add", clientAddr).WithField("request", request).Error("this is handlerequest and response")
 	packet := gopacket.NewPacket(request, layers.LayerTypeDNS, gopacket.Default)
 	dnsPacket := packet.Layer(layers.LayerTypeDNS)
 	replyMess, _ := dnsPacket.(*layers.DNS)
@@ -137,4 +148,12 @@ func(op* realDnsServer)handleRequestAndResponse(clientAddr net.Addr, request []b
 		panic(err)
 	}
 	op.server.WriteTo(buf.Bytes(), clientAddr)
+}
+
+
+func(op *realDnsServer)getDefaultDnsConfig()*dnsConfig{
+	return &dnsConfig{
+		address: "0.0.0.0",
+		port:    1053,
+	}
 }
