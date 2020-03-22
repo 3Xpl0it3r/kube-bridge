@@ -6,7 +6,7 @@ import (
 )
 
 type KBStorageController struct {
-	sync controller.ISynchronize
+	sync controller.IDispatcher
 }
 
 func NewStorageController()controller.Controller{
@@ -25,8 +25,8 @@ func(c *KBStorageController)RemoveHook(hook controller.Hook)error{
 	return nil
 }
 
-func(s *KBStorageController)Sync(object interface{}, controller controller.Controller){
-	s.sync.Sync(object, s)
+func(s *KBStorageController)Dispatch(object interface{}, controller controller.Controller){
+	s.sync.Dispatch(object, s)
 }
 
 func(s *KBStorageController)Update(object interface{}){

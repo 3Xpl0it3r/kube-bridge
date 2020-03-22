@@ -18,7 +18,7 @@ type kubeResourcePodController struct {
 	KubeResourceController
 }
 
-func NewKubeResourcePodController(clientSet kubernetes.Interface, restConfig *rest.Config, sync controller.ISynchronize)controller.Controller{
+func NewKubeResourcePodController(clientSet kubernetes.Interface, restConfig *rest.Config, sync controller.IDispatcher)controller.Controller{
 	return &kubeResourcePodController{KubeResourceController{
 		HookManager: controller.HookManager{},
 		clientSet:clientSet,
@@ -69,7 +69,7 @@ func(c *kubeResourcePodController)onAdd(object interface{}){
 
 	defer func() {
 		if err:= c.operator.UpdateOperator(object);err != nil {
-			logging.LogKubeResourceController("pod").WithError(err).Errorf("pod %s state updated failed\n", newObj.Name)
+			logging.LogKubeResourceController("pod").WithError(err.Error()).Errorf("pod %s state updated failed\n", newObj.Name)
 		}
 	}()
 
@@ -81,7 +81,7 @@ func(c *kubeResourcePodController)onAdd(object interface{}){
 	if _,ok := newObj.Labels[KUBE_BRIDGE_MODULE_STATE]; !ok || newObj.Labels[KUBE_BRIDGE_MODULE_STATE]!= KUBE_BRIDGE_MODULE_READY{
 		logging.LogKubeResourceController("pod").Debugf("pod %s state is running ,but has not add dns\n", newObj.Name)
 		if err := c.operator.AddOperator(object);err != nil {
-			logging.LogKubeResourceController("pod").WithError(err).Errorf("pod %s add dns failed, and retry\n", newObj.Name)
+			logging.LogKubeResourceController("pod").WithError(err.Error()).Errorf("pod %s add dns failed, and retry\n", newObj.Name)
 			newObj.Labels[KUBE_BRIDGE_MODULE_STATE] = KUBE_BRIDGE_MODULE_UPDATING
 		} else {
 			logging.LogKubeResourceController("pod").Infof("pod %s add dns successfully\n", newObj.Name)

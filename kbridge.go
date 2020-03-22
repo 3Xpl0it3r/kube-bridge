@@ -10,6 +10,7 @@ import (
 	"l0calh0st.cn/k8s-bridge/pkg/controller"
 	"l0calh0st.cn/k8s-bridge/pkg/controller/dns"
 	kube_resource "l0calh0st.cn/k8s-bridge/pkg/controller/kube-resource"
+	"l0calh0st.cn/k8s-bridge/pkg/controller/sync"
 	"os"
 	"os/signal"
 	"syscall"
@@ -39,23 +40,29 @@ func main() {
 	ctx,cancelFunc := context.WithCancel(context.Background())
 	defer cancelFunc()
 
-	kubeBridgeSyncController := controller.NewSynchronize()
+	kubeBridgeDispatchController := controller.NewDispatcher()
 
 	logrus.Infoln("Starting the kubeResourceServiceController...")
-	kubeResourceServiceController := kube_resource.NewKubeResourceServiceController(kubeClientSet, restConfig, kubeBridgeSyncController)
-	kubeBridgeSyncController.RegisterController(kubeResourceServiceController)
+	kubeResourceServiceController := kube_resource.NewKubeResourceServiceController(kubeClientSet, restConfig, kubeBridgeDispatchController)
+	kubeBridgeDispatchController.RegisterController(kubeResourceServiceController)
 	go runController(ctx, kubeResourceServiceController)
 
 
 	logrus.Infoln("Starting the kubeResourcePodController...")
-	kubeResourcePodController := kube_resource.NewKubeResourcePodController(kubeClientSet, restConfig, kubeBridgeSyncController)
-	kubeBridgeSyncController.RegisterController(kubeResourcePodController)
+	kubeResourcePodController := kube_resource.NewKubeResourcePodController(kubeClientSet, restConfig, kubeBridgeDispatchController)
+	kubeBridgeDispatchController.RegisterController(kubeResourcePodController)
 	go runController(ctx, kubeResourcePodController)
 
 	logrus.Infof("Start dns controller ......")
-	dnsController := dns.NewKubeBridgeDnsController(kubeBridgeSyncController)
-	kubeBridgeSyncController.RegisterController(dnsController)
+	dnsController := dns.NewKubeBridgeDnsController(kubeBridgeDispatchController)
+	kubeBridgeDispatchController.RegisterController(dnsController)
 	go runController(ctx, dnsController)
+
+	logrus.Infof("Staer sync controller......")
+	syncController := sync.NewKubeBridgeSyncController(kubeBridgeDispatchController)
+	kubeBridgeDispatchController.RegisterController(syncController)
+	go runController(ctx, syncController)
+
 
 	stopCh := make(chan os.Signal)
 	signal.Notify(stopCh, syscall.SIGTERM, syscall.SIGINT)

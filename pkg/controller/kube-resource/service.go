@@ -21,12 +21,12 @@ type kubeResourceServiceController struct {
 }
 
 // NewKubeResourceServiceControoler(
-func NewKubeResourceServiceController(clientSet kubernetes.Interface,restConfig *rest.Config, sync controller.ISynchronize)controller.Controller{
+func NewKubeResourceServiceController(clientSet kubernetes.Interface,restConfig *rest.Config, dispatchor controller.IDispatcher)controller.Controller{
 	return &kubeResourceServiceController{KubeResourceController{
 		HookManager: controller.HookManager{},
 		clientSet:clientSet,
 		operator: kube_resource.NewServiceOperator(clientSet, restConfig),
-		sync: sync,
+		dispatchor: dispatchor,
 	}}
 }
 // Run the entrypoint of controller
@@ -69,7 +69,7 @@ func(c *kubeResourceServiceController)onAdd(object interface{}){
 			logging.LogKubeResourceController("service").WithError(err.Error()).Errorf("update service %s state failed\n", newObj.Name)
 		} else {
 			dnsname := newObj.Name+newObj.Namespace
-			c.sync.Sync(dnsname, c)
+			c.dispatchor.Dispatch(dnsname, c)
 		}
 	}()
 	if err := c.operator.AddOperator(object);err != nil {

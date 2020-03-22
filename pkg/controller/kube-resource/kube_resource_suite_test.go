@@ -1,4 +1,4 @@
-package kube_resource_test
+ package kube_resource_test
 
 import (
 	"testing"

@@ -9,11 +9,11 @@ import (
 
 type KubeBridgeDnsController struct {
 	server dns.Operator
-	sync controller.ISynchronize
+	sync controller.IDispatcher
 }
 
 
-func NewKubeBridgeDnsController(sync controller.ISynchronize)controller.Controller{
+func NewKubeBridgeDnsController(sync controller.IDispatcher)controller.Controller{
 	return &KubeBridgeDnsController{
 		server: dns.NewRealDnsServer(),
 		sync: sync,
@@ -34,8 +34,8 @@ func(c *KubeBridgeDnsController)RemoveHook(hook controller.Hook)error{
 	return nil
 }
 
-func(c *KubeBridgeDnsController)Sync(object interface{}, controller controller.Controller){
-	c.sync.Sync(object, c)
+func(c *KubeBridgeDnsController)Dispatch(object interface{}, controller controller.Controller){
+	c.sync.Dispatch(object, c)
 }
 
 func(c *KubeBridgeDnsController)Update(object interface{}){

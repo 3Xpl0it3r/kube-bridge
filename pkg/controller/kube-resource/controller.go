@@ -19,11 +19,11 @@ type KubeResourceController struct {
 	controller.HookManager
 	clientSet kubernetes.Interface
 	operator  kube_resource.Operator
-	sync controller.ISynchronize
+	dispatchor controller.IDispatcher
 }
 
-func(c *KubeResourceController)Sync(object interface{},controller controller.Controller){
-	c.sync.Sync(object, c)
+func(c *KubeResourceController)Dispatch(object interface{},controller controller.Controller){
+	c.dispatchor.Dispatch(object, c)
 }
 func(c *KubeResourceController)Run(ctx context.Context)error{return nil}
 func(c *KubeResourceController)AddHook(hook controller.Hook)error{return nil}
