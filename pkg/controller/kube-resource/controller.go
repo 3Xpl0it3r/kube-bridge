@@ -23,7 +23,7 @@ type KubeResourceController struct {
 }
 
 func(c *KubeResourceController)Sync(object interface{},controller controller.Controller){
-	c.sync.Sync(object, controller)
+	c.sync.Sync(object, c)
 }
 func(c *KubeResourceController)Run(ctx context.Context)error{return nil}
 func(c *KubeResourceController)AddHook(hook controller.Hook)error{return nil}

@@ -35,10 +35,9 @@ func(c *KubeBridgeDnsController)RemoveHook(hook controller.Hook)error{
 }
 
 func(c *KubeBridgeDnsController)Sync(object interface{}, controller controller.Controller){
-	c.server.UpdateZone(object)
-
+	c.sync.Sync(object, c)
 }
 
 func(c *KubeBridgeDnsController)Update(object interface{}){
-
+	c.Update(object)
 }

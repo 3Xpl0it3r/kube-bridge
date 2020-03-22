@@ -26,7 +26,7 @@ func(c *KBStorageController)RemoveHook(hook controller.Hook)error{
 }
 
 func(s *KBStorageController)Sync(object interface{}, controller controller.Controller){
-	s.sync.Sync(object, controller)
+	s.sync.Sync(object, s)
 }
 
 func(s *KBStorageController)Update(object interface{}){
