@@ -15,14 +15,15 @@ import (
 )
 
 type kubeResourcePodController struct {
-	kubeResourceController
+	KubeResourceController
 }
 
-func NewKubeResourcePodController(clientSet kubernetes.Interface, restConfig *rest.Config)controller.Controller{
-	return &kubeResourcePodController{kubeResourceController{
+func NewKubeResourcePodController(clientSet kubernetes.Interface, restConfig *rest.Config, sync controller.ISynchronize)controller.Controller{
+	return &kubeResourcePodController{KubeResourceController{
 		HookManager: controller.HookManager{},
 		clientSet:clientSet,
 		operator: kube_resource.NewPodOperator(clientSet, restConfig),
+		sync: sync,
 	}}
 }
 

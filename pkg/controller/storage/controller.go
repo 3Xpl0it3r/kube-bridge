@@ -5,22 +5,30 @@ import (
 	"l0calh0st.cn/k8s-bridge/pkg/controller"
 )
 
-type storageController struct {
-
+type KBStorageController struct {
+	sync controller.ISynchronize
 }
 
 func NewStorageController()controller.Controller{
-	return &storageController{}
+	return &KBStorageController{}
 }
 
-func(c *storageController)Run(ctx context.Context)error{
+func(c *KBStorageController)Run(ctx context.Context)error{
 	return nil
 }
 
-func(c *storageController)AddHook(hook controller.Hook)error{
+func(c *KBStorageController)AddHook(hook controller.Hook)error{
 	return nil
 }
 
-func(c *storageController)RemoveHook(hook controller.Hook)error{
+func(c *KBStorageController)RemoveHook(hook controller.Hook)error{
 	return nil
+}
+
+func(s *KBStorageController)Sync(object interface{}, controller controller.Controller){
+	s.sync.Sync(object, controller)
+}
+
+func(s *KBStorageController)Update(object interface{}){
+
 }

@@ -1,6 +1,7 @@
 package kube_resource
 
 import (
+	"context"
 	"k8s.io/client-go/kubernetes"
 	"l0calh0st.cn/k8s-bridge/pkg/controller"
 	"l0calh0st.cn/k8s-bridge/pkg/operator/kube-resource"
@@ -14,12 +15,19 @@ const (
 	KUBE_BRIDGE_MODULE_UPDATING = "UPDATING"
 )
 
-type kubeResourceController struct {
+type KubeResourceController struct {
 	controller.HookManager
 	clientSet kubernetes.Interface
 	operator  kube_resource.Operator
+	sync controller.ISynchronize
 }
 
+func(c *KubeResourceController)Sync(object interface{},controller controller.Controller){
+	c.sync.Sync(object, controller)
+}
+func(c *KubeResourceController)Run(ctx context.Context)error{return nil}
+func(c *KubeResourceController)AddHook(hook controller.Hook)error{return nil}
+func(c *KubeResourceController)RemoveHook(hook controller.Hook)error{return nil}
 
 
 

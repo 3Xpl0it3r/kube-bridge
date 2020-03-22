@@ -7,6 +7,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/remotecommand"
 	"l0calh0st.cn/k8s-bridge/configure"
+	"l0calh0st.cn/k8s-bridge/pkg/kberror"
 	"os"
 )
 
@@ -19,7 +20,7 @@ func init() {
 
 
 
-func PodRemoteCommandExec(clientSet kubernetes.Interface, restConf *rest.Config,pod *corev1.Pod, cmd ...string)error{
+func PodRemoteCommandExec(clientSet kubernetes.Interface, restConf *rest.Config,pod *corev1.Pod, cmd ...string)kberror.KubeBridgeError{
 
 	command := cmd
 	req := clientSet.CoreV1().RESTClient().Post().Resource("pods").
@@ -42,16 +43,16 @@ func PodRemoteCommandExec(clientSet kubernetes.Interface, restConf *rest.Config,
 		TTY:false,
 	}, parameterCodec)
 
-	exec,err := remotecommand.NewSPDYExecutor(restConf, "POST", req.URL())
-	if err!= nil {
-		return err
-	}
-	err = exec.Stream(remotecommand.StreamOptions{
-		Stdin:             nil,
-		Stdout:           	os.Stdout,
-		Stderr:            os.Stderr,
-		Tty:               false,
-	})
+	var err	error
 
-	return err
+	if exec,err := remotecommand.NewSPDYExecutor(restConf, "POST", req.URL());err == nil {
+		err = exec.Stream(remotecommand.StreamOptions{
+			Stdin:             nil,
+			Stdout:           	os.Stdout,
+			Stderr:            os.Stderr,
+			Tty:               false,
+		})
+	}
+
+	return kberror.NewKubeOpeatorError().AddError(err)
 }

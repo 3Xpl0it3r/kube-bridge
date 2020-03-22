@@ -17,15 +17,16 @@ import (
 
 // kubeResourceServiceController is the spec of kubeResourceService
 type kubeResourceServiceController struct {
-	kubeResourceController
+	KubeResourceController
 }
 
 // NewKubeResourceServiceControoler(
-func NewKubeResourceServiceController(clientSet kubernetes.Interface,restConfig *rest.Config)controller.Controller{
-	return &kubeResourceServiceController{kubeResourceController{
+func NewKubeResourceServiceController(clientSet kubernetes.Interface,restConfig *rest.Config, sync controller.ISynchronize)controller.Controller{
+	return &kubeResourceServiceController{KubeResourceController{
 		HookManager: controller.HookManager{},
 		clientSet:clientSet,
 		operator: kube_resource.NewServiceOperator(clientSet, restConfig),
+		sync: sync,
 	}}
 }
 // Run the entrypoint of controller
@@ -65,7 +66,10 @@ func(c *kubeResourceServiceController)onAdd(object interface{}){
 
 	defer func() {
 		if err := c.operator.UpdateOperator(newObj);err != nil {
-			logging.LogKubeResourceController("service").WithError(err).Errorf("update service %s state failed\n", newObj.Name)
+			logging.LogKubeResourceController("service").WithError(err.Error()).Errorf("update service %s state failed\n", newObj.Name)
+		} else {
+			dnsname := newObj.Name+newObj.Namespace
+			c.sync.Sync(dnsname, c)
 		}
 	}()
 	if err := c.operator.AddOperator(object);err != nil {
@@ -73,8 +77,6 @@ func(c *kubeResourceServiceController)onAdd(object interface{}){
 	} else {
 		newObj.Labels[KUBE_BRIDGE_MODULE_STATE] = KUBE_BRIDGE_MODULE_READY
 	}
-
-
 }
 
 func(c *kubeResourceServiceController)onDelete(obj interface{}){
@@ -88,7 +90,7 @@ func(c *kubeResourceServiceController)onDelete(obj interface{}){
 	}
 	logging.LogKubeResourceController("service").Debugf("Service %s ready to be delete\n", svcObj.Name)
 	if err := c.operator.DeleteOperator(svcObj);err != nil {
-		logging.LogKubeResourceController("service").WithField("Event", "Delete").WithError(err).Errorf("clearn svc/ingress resource failed")
+		logging.LogKubeResourceController("service").WithField("Event", "Delete").WithError(err.Error()).Errorf("clearn svc/ingress resource failed")
 	} else {
 		logging.LogKubeResourceController("service").WithField("Event", "Delete").Infof("Delete Service/Ingress  %s Successfully", svcObj.Name)
 	}

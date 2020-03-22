@@ -39,16 +39,22 @@ func main() {
 	ctx,cancelFunc := context.WithCancel(context.Background())
 	defer cancelFunc()
 
+	kubeBridgeSyncController := controller.NewSynchronize()
+
 	logrus.Infoln("Starting the kubeResourceServiceController...")
-	kubeResourceServiceController := kube_resource.NewKubeResourceServiceController(kubeClientSet, restConfig)
+	kubeResourceServiceController := kube_resource.NewKubeResourceServiceController(kubeClientSet, restConfig, kubeBridgeSyncController)
+	kubeBridgeSyncController.RegisterController(kubeResourceServiceController)
 	go runController(ctx, kubeResourceServiceController)
 
+
 	logrus.Infoln("Starting the kubeResourcePodController...")
-	kubeResourcePodController := kube_resource.NewKubeResourcePodController(kubeClientSet, restConfig)
+	kubeResourcePodController := kube_resource.NewKubeResourcePodController(kubeClientSet, restConfig, kubeBridgeSyncController)
+	kubeBridgeSyncController.RegisterController(kubeResourcePodController)
 	go runController(ctx, kubeResourcePodController)
 
 	logrus.Infof("Start dns controller ......")
-	dnsController := dns.NewKubeBridgeDnsController()
+	dnsController := dns.NewKubeBridgeDnsController(kubeBridgeSyncController)
+	kubeBridgeSyncController.RegisterController(dnsController)
 	go runController(ctx, dnsController)
 
 	stopCh := make(chan os.Signal)

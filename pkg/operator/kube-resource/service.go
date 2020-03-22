@@ -7,6 +7,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"l0calh0st.cn/k8s-bridge/pkg/kberror"
 	"l0calh0st.cn/k8s-bridge/pkg/logging"
 )
 
@@ -24,15 +25,17 @@ func NewServiceOperator(clientSet kubernetes.Interface, restConfig *rest.Config)
 	}
 }
 
-func(op *serviceOperator)AddOperator(object interface{})error{
+func(op *serviceOperator)AddOperator(object interface{})kberror.KubeBridgeError{
 	logging.LogKubeResourceController("service").WithField("Subsystem", "operator").Debugf("Ready remove service %s\n", object.(*corev1.Service))
 	return op.operator.AddOperator(derviedIngressFromService(object.(*corev1.Service)))
+
+
 }
 
-func(op *serviceOperator)DeleteOperator(object interface{})error{
+func(op *serviceOperator)DeleteOperator(object interface{})kberror.KubeBridgeError{
 	return op.operator.DeleteOperator(derviedIngressFromService(object.(*corev1.Service)))
 }
-func(op *serviceOperator)UpdateOperator(object interface{})error{
+func(op *serviceOperator)UpdateOperator(object interface{})kberror.KubeBridgeError{
 	return nil
 }
 

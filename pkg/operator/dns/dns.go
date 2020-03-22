@@ -2,6 +2,7 @@ package dns
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/sirupsen/logrus"
@@ -15,23 +16,29 @@ type dnsConfig struct {
 	port int
 }
 
-// mediator connect server(producer) and client(customer)
-type mediator struct {
-	clientAddr net.Addr
-	body []byte
-}
+
+
 
 // realDnsServer represent a dns server
 type realDnsServer struct {
 	dnsConf dnsConfig
 	server *net.UDPConn
+	cache map[string]string
 }
 
 func NewRealDnsServer()Operator{
 	return &realDnsServer{
 		dnsConf: dnsConfig{},
 		server:  nil,
+		cache: make(map[string]string),
 	}
+}
+
+//
+// mediator connect server(producer) and client(customer)
+type mediator struct {
+	clientAddr net.Addr
+	body []byte
 }
 
 // Run is the entrypoint of real dns server
@@ -51,8 +58,8 @@ func(op *realDnsServer)Run(ctx context.Context)error{
 	}
 
 	media := make(chan mediator)
-	defer close(media)
 	go func() {
+		defer close(media)
 		if err = op.runService(ctx, media);err != nil {
 			logging.LogDnsServerController().WithError(err).Error("dns server run server module for accept request from client failed")
 		}
@@ -68,18 +75,46 @@ func(op *realDnsServer)Run(ctx context.Context)error{
 
 func(op *realDnsServer)AddZone(object interface{})error{
 	// todo
+	var record map[string]string
+	var ok bool
+	if record, ok = object.(map[string]string);!ok{
+		return fmt.Errorf("delete zone from dns cahe, record except map[string]string, but got %v\n", object)
+	}
+	for k,v := range record{
+		op.cache[k] = v
+	}
 	return nil
 }
 
 func(op *realDnsServer)RemoveZone(object interface{})error{
-	//todo
+	var record map[string]string
+	var ok bool
+	if record, ok = object.(map[string]string);!ok{
+		return fmt.Errorf("delete zone from dns cahe, record except map[string]string, but got %v\n", object)
+	}
+	for k,_ := range record{
+		delete(op.cache, k)
+		if !ok {
+
+		} else {
+
+		}
+	}
 	return nil
 }
 
 func(op *realDnsServer)UpdateZone(object interface{})error{
-	//todo
+	var record map[string]string
+	var ok bool
+	if record,ok = object.(map[string]string);!ok {
+		return fmt.Errorf("update zone to dns cache failed, record expcet map[string]string, but got %v", object)
+	}
+	for k,v := range record {
+		op.cache[k] = v
+	}
 	return nil
 }
+
 func(op* realDnsServer)runService(ctx context.Context,object chan <- mediator)error{
 	//todo
 	var buffer []byte = make([]byte, 512)
@@ -149,6 +184,7 @@ func(op* realDnsServer)handleRequestAndResponse(clientAddr net.Addr, request []b
 	}
 	op.server.WriteTo(buf.Bytes(), clientAddr)
 }
+
 
 
 func(op *realDnsServer)getDefaultDnsConfig()*dnsConfig{
