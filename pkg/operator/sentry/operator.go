@@ -9,6 +9,7 @@ import (
 	"l0calh0st.cn/k8s-bridge/pkg/logging"
 	"l0calh0st.cn/k8s-bridge/pkg/operator/sentry/proto"
 	"net"
+	"strconv"
 	"time"
 )
 
@@ -47,7 +48,7 @@ func(s *realSentryOperator)Run(ctx context.Context)error{
 func(s *realSentryOperator)runServer(ctx context.Context)error{
 	chErr := make(chan error)
 	defer close(chErr)
-	lis,err := net.Listen("tcp", "0.0.0.0:"+globalConfig.GRpc.Port)
+	lis,err := net.Listen("tcp", "0.0.0.0:"+strconv.Itoa(globalConfig.GRpc.Port))
 	if err != nil {
 		return err
 	}
@@ -64,7 +65,7 @@ func(s *realSentryOperator)runServer(ctx context.Context)error{
 
 
 func(s *realSentryOperator)OnAdd(object interface{}) error{
-	conn,err := grpc.Dial(globalConfig.GRpc.Address+":"+globalConfig.GRpc.Port, grpc.WithInsecure())
+	conn,err := grpc.Dial(globalConfig.GRpc.Address+":"+strconv.Itoa(globalConfig.GRpc.Port), grpc.WithInsecure())
 	if err != nil {
 		return err
 	}
@@ -80,7 +81,7 @@ func(s *realSentryOperator)OnAdd(object interface{}) error{
 }
 
 func(s *realSentryOperator)OnDelete(object interface{})error{
-	conn,err := grpc.Dial(globalConfig.GRpc.Address+":"+globalConfig.GRpc.Port, grpc.WithInsecure())
+	conn,err := grpc.Dial(globalConfig.GRpc.Address+":"+strconv.Itoa(globalConfig.GRpc.Port), grpc.WithInsecure())
 	if err != nil {
 		return err
 	}
@@ -96,7 +97,7 @@ func(s *realSentryOperator)OnDelete(object interface{})error{
 
 }
 func(s *realSentryOperator)OnUpdate(object interface{})error{
-	conn,err := grpc.Dial(globalConfig.GRpc.Address+":"+globalConfig.GRpc.Port, grpc.WithInsecure())
+	conn,err := grpc.Dial(globalConfig.GRpc.Address+":"+strconv.Itoa(globalConfig.GRpc.Port), grpc.WithInsecure())
 	if err != nil {
 		return err
 	}

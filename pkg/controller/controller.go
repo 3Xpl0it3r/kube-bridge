@@ -10,4 +10,5 @@ type Controller interface {
 	RemoveHook(hook Hook)error
 	//
 	Dispatch(event Event, controller Controller)
+	Update(event Event)
 }

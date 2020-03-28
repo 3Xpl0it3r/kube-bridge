@@ -28,6 +28,7 @@ func(c *KubeResourceController)Dispatch(event controller.Event,controller contro
 func(c *KubeResourceController)Run(ctx context.Context)error{return nil}
 func(c *KubeResourceController)AddHook(hook controller.Hook)error{return nil}
 func(c *KubeResourceController)RemoveHook(hook controller.Hook)error{return nil}
+func(c *KubeResourceController)Update(event controller.Event){}
 
 
 

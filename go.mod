@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/gogo/protobuf v1.3.1 // indirect
-	github.com/golang/protobuf v1.3.5 // indirect
+	github.com/golang/protobuf v1.3.5
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/google/gopacket v1.1.17
 	github.com/imdario/mergo v0.3.8 // indirect
@@ -19,7 +19,7 @@ require (
 	golang.org/x/sys v0.0.0-20200321134203-328b4cd54aae // indirect
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	google.golang.org/genproto v0.0.0-20200319113533-08878b785e9c // indirect
-	google.golang.org/grpc v1.28.0 // indirect
+	google.golang.org/grpc v1.28.0
 	k8s.io/api v0.17.4
 	k8s.io/apimachinery v0.17.4
 	k8s.io/client-go v0.17.4

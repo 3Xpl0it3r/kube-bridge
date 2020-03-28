@@ -1,17 +1,14 @@
 package controller
 
 import (
-	"l0calh0st.cn/k8s-bridge/pkg/controller/dns"
-	kube_resource "l0calh0st.cn/k8s-bridge/pkg/controller/kube-resource"
-	"l0calh0st.cn/k8s-bridge/pkg/controller/storage"
-	"l0calh0st.cn/k8s-bridge/pkg/controller/sentry"
+	"reflect"
+	"strings"
 )
 
 const (
-	kube_resource_pod_controller_type = "kube_resource_pod_controller"
-	kube_resource_service_controller_type = "kube_resource_service_controller"
-	kube_dns_controller_type = "kube_dns_controller"
-	kube_storage_controller_type = "kube_storage_controller"
+	KUBE_RESOURCE_SERVICE_CONTROLLER = "kubeResourceServiceController"
+	DNS_CONTROLLER = "KubeBridgeDnsController"
+	SENTRY_CONTROLLER = "KubeBridgeSyncController"
 )
 
 type IDispatcher interface {
@@ -28,21 +25,31 @@ func NewDispatcher()*Dispatcher{
 }
 
 func(s *Dispatcher)RegisterController(controller Controller){
-	switch controller.(type) {
-	case *dns.KubeBridgeDnsController:
-		s.controllers[kube_dns_controller_type] = controller
-	case *storage.KBStorageController:
-		s.controllers[kube_storage_controller_type] = controller
+	controllerType := reflect.TypeOf(controller)
+	if controllerType == nil {return }
+	switch {
+	case strings.Contains(controllerType.String(), KUBE_RESOURCE_SERVICE_CONTROLLER):
+		s.controllers[KUBE_RESOURCE_SERVICE_CONTROLLER] = controller
+	case strings.Contains(controllerType.String(), DNS_CONTROLLER):
+		s.controllers[DNS_CONTROLLER] = controller
+	case strings.Contains(controllerType.String(), SENTRY_CONTROLLER):
+		s.controllers[SENTRY_CONTROLLER] = controller
 	default:
 	}
 }
 
 func(s *Dispatcher)Dispatch(event Event, controller Controller){
 	if s == nil{return }
-	switch controller.(type) {
-	case *kube_resource.KubeResourceController:
-		s.controllers[kube_storage_controller_type].(*sentry.KubeBridgeSyncController).Update(event)
-	case *sentry.KubeBridgeSyncController:
-		s.controllers[kube_dns_controller_type].(*dns.KubeBridgeDnsController).Update(event)
+	controllerType := reflect.TypeOf(controller)
+	if controllerType == nil {return }
+
+	switch {
+	case strings.Contains(controllerType.String(), KUBE_RESOURCE_SERVICE_CONTROLLER):
+		s.controllers[SENTRY_CONTROLLER].Update(event)
+	case strings.Contains(controllerType.String(), SENTRY_CONTROLLER):
+		s.controllers[DNS_CONTROLLER].Update(event)
+	default:
 	}
+
+
 }

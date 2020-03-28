@@ -18,12 +18,12 @@ type kubeResourcePodController struct {
 	KubeResourceController
 }
 
-func NewKubeResourcePodController(clientSet kubernetes.Interface, restConfig *rest.Config, sync controller.IDispatcher)controller.Controller{
+func NewKubeResourcePodController(clientSet kubernetes.Interface, restConfig *rest.Config, dispatcher controller.IDispatcher)controller.Controller{
 	return &kubeResourcePodController{KubeResourceController{
 		HookManager: controller.HookManager{},
 		clientSet:clientSet,
 		operator: kube_resource.NewPodOperator(clientSet, restConfig),
-		sync: sync,
+		dispatchor: dispatcher,
 	}}
 }
 
