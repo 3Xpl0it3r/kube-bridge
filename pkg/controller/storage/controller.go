@@ -6,7 +6,7 @@ import (
 )
 
 type KBStorageController struct {
-	sync controller.IDispatcher
+	dispatcher controller.IDispatcher
 }
 
 func NewStorageController()controller.Controller{
@@ -25,10 +25,13 @@ func(c *KBStorageController)RemoveHook(hook controller.Hook)error{
 	return nil
 }
 
-func(s *KBStorageController)Dispatch(object interface{}, controller controller.Controller){
-	s.sync.Dispatch(object, s)
+func(s *KBStorageController)Dispatch(event controller.Event, controller controller.Controller){
+	s.dispatcher.Dispatch(event, s)
 }
 
-func(s *KBStorageController)Update(object interface{}){
+func(s *KBStorageController)Update(event controller.Event){
+	switch event.Type {
+	case controller.EventAdded:
 
+	}
 }

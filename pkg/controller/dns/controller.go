@@ -9,20 +9,22 @@ import (
 
 type KubeBridgeDnsController struct {
 	server dns.Operator
-	sync controller.IDispatcher
+	dispatcher controller.IDispatcher
 }
 
 
 func NewKubeBridgeDnsController(sync controller.IDispatcher)controller.Controller{
 	return &KubeBridgeDnsController{
 		server: dns.NewRealDnsServer(),
-		sync: sync,
+		dispatcher: sync,
 	}
 }
 
 
 func(c *KubeBridgeDnsController)Run(ctx context.Context)error{
-	c.server.Run(ctx)
+	if err := c.server.Run(ctx);err != nil {
+
+	}
 	<- ctx.Done()
 	return ctx.Err()
 }
@@ -34,10 +36,33 @@ func(c *KubeBridgeDnsController)RemoveHook(hook controller.Hook)error{
 	return nil
 }
 
-func(c *KubeBridgeDnsController)Dispatch(object interface{}, controller controller.Controller){
-	c.sync.Dispatch(object, c)
+func(c *KubeBridgeDnsController)Dispatch(event controller.Event, controller controller.Controller){
+	c.dispatcher.Dispatch(event, c)
 }
 
-func(c *KubeBridgeDnsController)Update(object interface{}){
-	c.Update(object)
+func(c *KubeBridgeDnsController)Update(event controller.Event){
+	switch event.Type {
+	case controller.EventAdded:
+		c.onAdd(event.Object)
+	case controller.EventDeleted:
+		c.onDelete(event.Object)
+	case controller.EventUpdated:
+		c.onUpdate(event.Object)
+	}
+}
+
+func(c *KubeBridgeDnsController)onAdd(object interface{}){
+	if err := c.server.AddZone(object);err != nil {
+
+	}
+}
+func(c *KubeBridgeDnsController)onUpdate(object interface{}){
+	if err := c.server.UpdateZone(object);err != nil {
+
+	}
+}
+func(c *KubeBridgeDnsController)onDelete(object interface{}){
+	if err := c.server.RemoveZone(object);err != nil {
+
+	} 
 }

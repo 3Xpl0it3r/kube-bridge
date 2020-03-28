@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package proto;
+
+service RecordCycleService {
+    rpc onAdd(RecordRequest) returns (RecordResponse) {};
+    rpc onDelete(RecordRequest) returns (RecordResponse) {};
+    rpc onUpdate(RecordRequest) returns (RecordResponse) {};
+}
+
+message RecordRequest {
+    string name = 1;
+}
+
+message RecordResponse {
+    bool ok = 1;
+}

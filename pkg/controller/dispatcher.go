@@ -4,7 +4,7 @@ import (
 	"l0calh0st.cn/k8s-bridge/pkg/controller/dns"
 	kube_resource "l0calh0st.cn/k8s-bridge/pkg/controller/kube-resource"
 	"l0calh0st.cn/k8s-bridge/pkg/controller/storage"
-	"l0calh0st.cn/k8s-bridge/pkg/controller/sync"
+	"l0calh0st.cn/k8s-bridge/pkg/controller/sentry"
 )
 
 const (
@@ -15,7 +15,7 @@ const (
 )
 
 type IDispatcher interface {
-	Dispatch(object interface{}, controller Controller)
+	Dispatch(event Event, controller Controller)
 }
 
 
@@ -37,12 +37,12 @@ func(s *Dispatcher)RegisterController(controller Controller){
 	}
 }
 
-func(s *Dispatcher)Dispatch(object interface{}, controller Controller){
+func(s *Dispatcher)Dispatch(event Event, controller Controller){
 	if s == nil{return }
 	switch controller.(type) {
 	case *kube_resource.KubeResourceController:
-		s.controllers[kube_storage_controller_type].(*sync.KubeBridgeSyncController).Update(object)
-	case *sync.KubeBridgeSyncController:
-		s.controllers[kube_dns_controller_type].(*dns.KubeBridgeDnsController).Update(object)
+		s.controllers[kube_storage_controller_type].(*sentry.KubeBridgeSyncController).Update(event)
+	case *sentry.KubeBridgeSyncController:
+		s.controllers[kube_dns_controller_type].(*dns.KubeBridgeDnsController).Update(event)
 	}
 }

@@ -9,5 +9,5 @@ type Controller interface {
 	AddHook(hook Hook)error
 	RemoveHook(hook Hook)error
 	//
-	Dispatch(object interface{}, controller Controller)
+	Dispatch(event Event, controller Controller)
 }

@@ -10,7 +10,7 @@ import (
 	"l0calh0st.cn/k8s-bridge/pkg/controller"
 	"l0calh0st.cn/k8s-bridge/pkg/controller/dns"
 	kube_resource "l0calh0st.cn/k8s-bridge/pkg/controller/kube-resource"
-	"l0calh0st.cn/k8s-bridge/pkg/controller/sync"
+	"l0calh0st.cn/k8s-bridge/pkg/controller/sentry"
 	"os"
 	"os/signal"
 	"syscall"
@@ -58,8 +58,8 @@ func main() {
 	kubeBridgeDispatchController.RegisterController(dnsController)
 	go runController(ctx, dnsController)
 
-	logrus.Infof("Staer sync controller......")
-	syncController := sync.NewKubeBridgeSyncController(kubeBridgeDispatchController)
+	logrus.Infof("Staer sentry controller......")
+	syncController := sentry.NewKubeBridgeSyncController(kubeBridgeDispatchController)
 	kubeBridgeDispatchController.RegisterController(syncController)
 	go runController(ctx, syncController)
 

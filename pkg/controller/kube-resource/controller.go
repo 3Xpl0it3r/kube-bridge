@@ -22,8 +22,8 @@ type KubeResourceController struct {
 	dispatchor controller.IDispatcher
 }
 
-func(c *KubeResourceController)Dispatch(object interface{},controller controller.Controller){
-	c.dispatchor.Dispatch(object, c)
+func(c *KubeResourceController)Dispatch(event controller.Event,controller controller.Controller){
+	c.dispatchor.Dispatch(event, c)
 }
 func(c *KubeResourceController)Run(ctx context.Context)error{return nil}
 func(c *KubeResourceController)AddHook(hook controller.Hook)error{return nil}
