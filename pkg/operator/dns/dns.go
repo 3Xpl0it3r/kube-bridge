@@ -6,6 +6,7 @@ import (
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/sirupsen/logrus"
+	"l0calh0st.cn/k8s-bridge/configure"
 	"l0calh0st.cn/k8s-bridge/pkg/logging"
 	"net"
 )
@@ -17,6 +18,7 @@ type dnsConfig struct {
 }
 
 
+var globalConfig *configure.Config = configure.NewConfig()
 
 
 // realDnsServer represent a dns server
@@ -43,13 +45,13 @@ type mediator struct {
 
 // Run is the entrypoint of real dns server
 func(op *realDnsServer)Run(ctx context.Context)error{
-	if op.dnsConf == (dnsConfig{}) {
-		op.dnsConf = *op.getDefaultDnsConfig()
-	}
+	//if op.dnsConf == (dnsConfig{}) {
+	//	op.dnsConf = *op.getDefaultDnsConfig()
+	//}
 	var err error
 	bindAddr := &net.UDPAddr{
-		IP:   net.ParseIP(op.dnsConf.address),
-		Port: op.dnsConf.port,
+		IP:   net.ParseIP(globalConfig.Dns.Bind),
+		Port: globalConfig.Dns.Port,
 		Zone: "",
 	}
 	op.server,err = net.ListenUDP("udp", bindAddr)

@@ -26,8 +26,8 @@ func(s *recordCycleServer)OnAdd(ctx context.Context,req *proto.RecordRequest)(re
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.cache != nil {
-		s.cache[req.Name] = "192.168.1.1"
-		s.workQueue.OnAdd(map[string]string{req.Name: "192.168.1.1"})
+		s.cache[req.Name] = globalConfig.Address
+		s.workQueue.OnAdd(map[string]string{req.Name: globalConfig.Address})
 		return &proto.RecordResponse{
 			Ok:                   true,
 		}, nil
@@ -42,8 +42,8 @@ func(s *recordCycleServer)OnUpdate(ctx context.Context,req *proto.RecordRequest)
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.cache != nil {
-		s.cache[req.Name] = "192.168.1.1"
-		s.workQueue.OnUpdate(map[string]string{req.Name: "192.168.1.1"})
+		s.cache[req.Name] = globalConfig.Address
+		s.workQueue.OnUpdate(map[string]string{req.Name: globalConfig.Address})
 		return &proto.RecordResponse{
 			Ok:                   true,
 		}, nil
@@ -58,12 +58,12 @@ func(s *recordCycleServer)OnDelete(ctx context.Context,req *proto.RecordRequest)
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.cache == nil {
-		s.cache[req.Name] = "192.168.1.1"
+		s.cache[req.Name] = globalConfig.Address
 		return &proto.RecordResponse{
 			Ok:                   true,
 		}, nil
 	}
 	delete(s.cache, req.Name)
-	s.workQueue.OnDelete(map[string]string{req.Name: "192.168.1.1"})
+	s.workQueue.OnDelete(map[string]string{req.Name: globalConfig.Address})
 	return &proto.RecordResponse{Ok: true}, nil
 }

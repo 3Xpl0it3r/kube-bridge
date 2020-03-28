@@ -3,13 +3,17 @@ package sentry
 import (
 	"context"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"l0calh0st.cn/k8s-bridge/configure"
 	"l0calh0st.cn/k8s-bridge/pkg/controller"
+	"l0calh0st.cn/k8s-bridge/pkg/logging"
 	"l0calh0st.cn/k8s-bridge/pkg/operator/sentry/proto"
 	"net"
 	"time"
 )
+
+var globalConfig *configure.Config = configure.NewConfig()
+
 
 type Operator interface {
 	Run(ctx context.Context)error
@@ -28,14 +32,14 @@ func NewRealSyncOperator(workQueue controller.EventsHook)*realSentryOperator{
 }
 
 func(s *realSentryOperator)Run(ctx context.Context)error{
+	logging.LogSentryController().Info("Sentry Operator Running")
 	ctx,cancel  := context.WithCancel(ctx)
 	defer cancel()
 	go func() {
 		if err := s.runServer(ctx);err != nil {
-			logrus.WithError(err)
+			logging.LogSentryController().WithError(err).Errorf("Sentry GRpc Server Run failed")
 		}
 	}()
-
 	<- ctx.Done()
 	return ctx.Err()
 }
@@ -43,7 +47,7 @@ func(s *realSentryOperator)Run(ctx context.Context)error{
 func(s *realSentryOperator)runServer(ctx context.Context)error{
 	chErr := make(chan error)
 	defer close(chErr)
-	lis,err := net.Listen("tcp", ":9999")
+	lis,err := net.Listen("tcp", "0.0.0.0:"+globalConfig.GRpc.Port)
 	if err != nil {
 		return err
 	}
@@ -60,29 +64,50 @@ func(s *realSentryOperator)runServer(ctx context.Context)error{
 
 
 func(s *realSentryOperator)OnAdd(object interface{}) error{
-	conn,err := grpc.Dial("", grpc.WithInsecure())
+	conn,err := grpc.Dial(globalConfig.GRpc.Address+":"+globalConfig.GRpc.Port, grpc.WithInsecure())
+	if err != nil {
+		return err
+	}
 	defer conn.Close()
 	c := proto.NewRecordCycleServiceClient(conn)
-	err = onAddRecordRequest(c, &proto.RecordRequest{
-		Name:                 object.(string),
-	})
+	err = onAddRecordRequest(c, &proto.RecordRequest{Name: object.(string)})
+	if err!= nil {
+		logging.LogSentryController().WithError(err).Errorf("RecordRequest  OnAdd  Failed\n")
+	} else {
+		logging.LogSentryController().Infof("RecordRequest OnAdd Successful\n")
+	}
 	return err
 }
 
 func(s *realSentryOperator)OnDelete(object interface{})error{
-	conn,err := grpc.Dial("", grpc.WithInsecure())
+	conn,err := grpc.Dial(globalConfig.GRpc.Address+":"+globalConfig.GRpc.Port, grpc.WithInsecure())
+	if err != nil {
+		return err
+	}
 	defer conn.Close()
 	c := proto.NewRecordCycleServiceClient(conn)
 	err = onDeleteRecordRequest(c, &proto.RecordRequest{Name: object.(string)})
+	if err!= nil {
+		logging.LogSentryController().WithError(err).Errorf("RecordRequest  OnDelete  Failed\n")
+	} else {
+		logging.LogSentryController().Infof("RecordRequest OnDelete Successful\n")
+	}
 	return err
 
 }
 func(s *realSentryOperator)OnUpdate(object interface{})error{
-
-	conn,err := grpc.Dial("", grpc.WithInsecure())
+	conn,err := grpc.Dial(globalConfig.GRpc.Address+":"+globalConfig.GRpc.Port, grpc.WithInsecure())
+	if err != nil {
+		return err
+	}
 	defer conn.Close()
 	c := proto.NewRecordCycleServiceClient(conn)
 	err = onUpdateRecordRequest(c, &proto.RecordRequest{Name: object.(string)})
+	if err!= nil {
+		logging.LogSentryController().WithError(err).Errorf("RecordRequest  OnUpdate  Failed\n")
+	} else {
+		logging.LogSentryController().Infof("RecordRequest OnUpdate Successful\n")
+	}
 	return err
 }
 

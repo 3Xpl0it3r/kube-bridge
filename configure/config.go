@@ -12,6 +12,10 @@ type Config struct {
 		Bind string `json:"bind"`
 		Port int `json:"port"`
 	} `json:"dns"`
+	GRpc struct{
+		Address string `json:"address"`	
+		Port int `json:"port"`
+	} `json:"grpc"`
 }
 
 var (

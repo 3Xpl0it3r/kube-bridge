@@ -59,7 +59,7 @@ func main() {
 	go runController(ctx, dnsController)
 
 	logrus.Infof("Staer sentry controller......")
-	syncController := sentry.NewKubeBridgeSyncController(kubeBridgeDispatchController)
+	syncController := sentry.NewKubeBridgeSentryController(kubeBridgeDispatchController)
 	kubeBridgeDispatchController.RegisterController(syncController)
 	go runController(ctx, syncController)
 

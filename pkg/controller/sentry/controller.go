@@ -3,6 +3,7 @@ package sentry
 import (
 	"context"
 	"l0calh0st.cn/k8s-bridge/pkg/controller"
+	"l0calh0st.cn/k8s-bridge/pkg/logging"
 	"l0calh0st.cn/k8s-bridge/pkg/operator/sentry"
 	"sync"
 )
@@ -17,7 +18,7 @@ type KubeBridgeSyncController struct {
 	dispatcher controller.IDispatcher
 }
 
-func NewKubeBridgeSyncController(dispatcher controller.IDispatcher)controller.Controller{
+func NewKubeBridgeSentryController(dispatcher controller.IDispatcher)controller.Controller{
 	c := &KubeBridgeSyncController{
 		dispatcher: dispatcher,
 		workQueue: controller.NewEventsHook(WORKQUEUESIZE),
@@ -34,6 +35,7 @@ func(c *KubeBridgeSyncController)Run(ctx context.Context)error{
 		for true {
 			select {
 			case record := <- c.workQueue.GetEventChan():
+				logging.LogSentryController().Infof("Receive Event Single From Sentry")
 				c.dispatcher.Dispatch(record, c)
 			case <- ctx.Done():
 			}
@@ -41,6 +43,7 @@ func(c *KubeBridgeSyncController)Run(ctx context.Context)error{
 	}()
 
 	if err := c.operator.Run(ctx);err != nil {
+
 	}
 	wg.Wait()
 	<- ctx.Done()
@@ -62,6 +65,7 @@ func(c *KubeBridgeSyncController)Dispatch(event controller.Event, controller con
 
 
 func(c *KubeBridgeSyncController)Update(event controller.Event){
+	logging.LogSentryController().Infof("Receive Dispatch From Kubernetes Resource Controller")
 	switch event.Type {
 	case controller.EventAdded:
 		c.onAdd(event.Object)
@@ -79,7 +83,12 @@ func(c *KubeBridgeSyncController)onAdd(object interface{}){
 	//		Object: object,
 	//	}, c)
 	//}
-	c.operator.OnAdd(object)
+	err := c.operator.OnAdd(object)
+	if err != nil {
+		logging.LogSentryController().WithError(err).Errorf("Send Add  to peer cluster Failed")
+	} else {
+		logging.LogSentryController().Errorf("Send Add  to peer cluster Success")
+	}
 }
 
 func(c *KubeBridgeSyncController)onUpdate(object interface{}){
@@ -89,7 +98,12 @@ func(c *KubeBridgeSyncController)onUpdate(object interface{}){
 	//		Object: object,
 	//	}, c)
 	//}
-	c.operator.OnUpdate(object)
+	err := c.operator.OnUpdate(object)
+	if err != nil {
+		logging.LogSentryController().WithError(err).Errorf("Send Update  to peer cluster Failed")
+	} else {
+		logging.LogSentryController().Errorf("Send Update  to peer cluster Success")
+	}
 
 }
 func(c *KubeBridgeSyncController)onDelete(object interface{}){
@@ -99,5 +113,10 @@ func(c *KubeBridgeSyncController)onDelete(object interface{}){
 	//		Object: object,
 	//	},c)
 	//}
-	c.operator.OnDelete(object)
+	err := c.operator.OnDelete(object)
+	if err != nil {
+		logging.LogSentryController().WithError(err).Errorf("Send Delete to peer cluster Failed")
+	} else {
+		logging.LogSentryController().Errorf("Send Delete to peer cluster Success")
+	}
 }

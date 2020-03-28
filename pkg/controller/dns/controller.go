@@ -3,6 +3,7 @@ package dns
 import (
 	"context"
 	"l0calh0st.cn/k8s-bridge/pkg/controller"
+	"l0calh0st.cn/k8s-bridge/pkg/logging"
 	"l0calh0st.cn/k8s-bridge/pkg/operator/dns"
 )
 
@@ -23,7 +24,9 @@ func NewKubeBridgeDnsController(sync controller.IDispatcher)controller.Controlle
 
 func(c *KubeBridgeDnsController)Run(ctx context.Context)error{
 	if err := c.server.Run(ctx);err != nil {
-
+		logging.LogDnsServerController().WithError(err).Errorf("Run Dns Server Failed\n")
+	} else {
+		logging.LogDnsServerController().Infof("Run Dns Server Success\n")
 	}
 	<- ctx.Done()
 	return ctx.Err()
@@ -53,16 +56,22 @@ func(c *KubeBridgeDnsController)Update(event controller.Event){
 
 func(c *KubeBridgeDnsController)onAdd(object interface{}){
 	if err := c.server.AddZone(object);err != nil {
-
+		logging.LogDnsServerController().WithError(err).Errorf("Add Record to Dns Cache Failed\n")
+	} else {
+		logging.LogDnsServerController().Infof("Add Record to Dns Cache Success Successful\n")
 	}
 }
 func(c *KubeBridgeDnsController)onUpdate(object interface{}){
 	if err := c.server.UpdateZone(object);err != nil {
-
+		logging.LogDnsServerController().WithError(err).Errorf("Update Record to Dns Cache Failed\n")
+	} else {
+		logging.LogDnsServerController().Infof("Update Record to Dns Cache Success Successful\n")
 	}
 }
 func(c *KubeBridgeDnsController)onDelete(object interface{}){
 	if err := c.server.RemoveZone(object);err != nil {
-
-	} 
+		logging.LogDnsServerController().WithError(err).Errorf("Delete Record to Dns Cache Failed\n")
+	} else {
+		logging.LogDnsServerController().Infof("Delete Record to Dns Cache Success Successful\n")
+	}
 }
