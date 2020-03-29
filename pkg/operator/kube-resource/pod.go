@@ -19,7 +19,8 @@ func NewPodOperator(clientSet kubernetes.Interface, restConfig *rest.Config)Oper
 
 //
 func(op *podOperator)AddOperator(object interface{})kberror.KubeBridgeError{
-	addDns := []string{"/bin/sh", "-c", fmt.Sprintf("echo '%s' >>  /etc/resolv.conf", kubeResourceConfig.Address)}
+
+	addDns := []string{"/bin/sh", "-c", fmt.Sprintf("echo 'nameserver %s' >>  /etc/resolv.conf", globalConfig.Dns.Bind)}
 	return op.executeRemoteCommand(object.(*corev1.Pod), addDns...)
 }
 

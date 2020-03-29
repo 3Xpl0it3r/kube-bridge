@@ -7,7 +7,7 @@ import (
 )
 
 type Config struct {
-	Address string `json:"localaddress"`
+	Address string `json:"address"`
 	Dns struct{
 		Bind string `json:"bind"`
 		Port int `json:"port"`
@@ -25,7 +25,7 @@ var (
 
 func init() {
 	viper.AddConfigPath("./")
-	viper.AddConfigPath("configure/")
+	viper.AddConfigPath("./configure")
 }
 
 
@@ -41,13 +41,17 @@ func NewConfig()*Config{
 func(c *Config)readFromFile(){
 	var filename string = "config"
 	viper.SetConfigName(filename)
+
+
 	if err := viper.ReadInConfig();err != nil {
 		logrus.WithError(err).Fatalf("Read Config file %s\n", filename)
+	}else {
+		logrus.Warn("Read Configfile success")
 	}
 	if err := viper.Unmarshal(c);err != nil {
 		logrus.WithError(err).Fatalf("Unmarshal data to configure failed\n")
 	}
-	logrus.Infof(c.Address)
+	logrus.Warn(c)
 }
 
 

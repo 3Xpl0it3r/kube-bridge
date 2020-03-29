@@ -7,6 +7,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	"l0calh0st.cn/k8s-bridge/configure"
 	"l0calh0st.cn/k8s-bridge/pkg/controller"
 	"l0calh0st.cn/k8s-bridge/pkg/controller/dns"
 	kube_resource "l0calh0st.cn/k8s-bridge/pkg/controller/kube-resource"
@@ -22,12 +23,15 @@ var (
 )
 
 var (
+	globalConfig *configure.Config = configure.NewConfig()
 	DEBUG bool = true
 )
 
 
 func main() {
 	flag.Parse()
+
+	logrus.Warn(globalConfig.Address)
 
 
 	if DEBUG {logrus.SetLevel(logrus.DebugLevel)}

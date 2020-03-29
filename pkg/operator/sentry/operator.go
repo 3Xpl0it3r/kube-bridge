@@ -66,16 +66,19 @@ func(s *realSentryOperator)runServer(ctx context.Context)error{
 
 func(s *realSentryOperator)OnAdd(object interface{}) error{
 	conn,err := grpc.Dial(globalConfig.GRpc.Address+":"+strconv.Itoa(globalConfig.GRpc.Port), grpc.WithInsecure())
+	address := fmt.Sprintln(globalConfig.GRpc.Address+":"+strconv.Itoa(globalConfig.GRpc.Port))
 	if err != nil {
+		logging.LogSentryController().WithError(err).Errorf("Grpc client Connect Server failed  server address %s\n", address)
 		return err
 	}
+	logging.LogSentryController().WithField("ServerAddress", address).Infof("Grpc client connect success\n")
 	defer conn.Close()
 	c := proto.NewRecordCycleServiceClient(conn)
 	err = onAddRecordRequest(c, &proto.RecordRequest{Name: object.(string)})
 	if err!= nil {
-		logging.LogSentryController().WithError(err).Errorf("RecordRequest  OnAdd  Failed\n")
+		logging.LogSentryController().WithError(err).WithField("Subsystem", "operator").Errorf("RecordRequest  OnAdd  Failed\n")
 	} else {
-		logging.LogSentryController().Infof("RecordRequest OnAdd Successful\n")
+		logging.LogSentryController().WithField("System",  "Operator").Infof("RecordRequest OnAdd Successful\n")
 	}
 	return err
 }
@@ -115,9 +118,14 @@ func(s *realSentryOperator)OnUpdate(object interface{})error{
 
 
 func onAddRecordRequest(client proto.RecordCycleServiceClient, req *proto.RecordRequest)error{
-	ctx,cancel := context.WithTimeout(context.Background(), time.Duration(5 * time.Second))
-	defer cancel()
-	_,err := client.OnAdd(ctx, req)
+	//ctx,cancel := context.WithTimeout(context.Background(), time.Duration(5 * time.Second))
+	//defer cancel()
+	_,err := client.OnAdd(context.Background(), req)
+	if err != nil {
+		logging.LogSentryController().WithError(err).Errorf("onAddRecordRequest. client.OnAdd Failed\n")
+	} else {
+		logging.LogSentryController().Infof("onAddRecordRequest. client.OnAdd Successfully\n")
+	}
 	return err
 }
 func onUpdateRecordRequest(client proto.RecordCycleServiceClient, req *proto.RecordRequest)error{

@@ -47,7 +47,7 @@ func derviedIngressFromService(svc *corev1.Service)*extensionBetav1.Ingress{
 			APIVersion: "extensions/v1beta1",
 		},
 		ObjectMeta: v1.ObjectMeta{
-				Name:svc.Name,
+				Name:svc.Name + "." + svc.Namespace,
 				Namespace: svc.Namespace,
 		},
 		Spec:       extensionBetav1.IngressSpec{

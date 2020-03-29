@@ -60,6 +60,7 @@ func(c *KubeBridgeDnsController)onAdd(object interface{}){
 	} else {
 		logging.LogDnsServerController().Infof("Add Record to Dns Cache Success Successful\n")
 	}
+
 }
 func(c *KubeBridgeDnsController)onUpdate(object interface{}){
 	if err := c.server.UpdateZone(object);err != nil {

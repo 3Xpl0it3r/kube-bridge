@@ -17,7 +17,7 @@ type recordCycleServer struct {
 func newEventCycleServer(workQueue controller.EventsHook)*recordCycleServer{
 	return &recordCycleServer{
 		mu:    &sync.Mutex{},
-		cache: nil,
+		cache: map[string]string{},
 		workQueue: workQueue,
 	}
 }

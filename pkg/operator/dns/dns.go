@@ -85,6 +85,7 @@ func(op *realDnsServer)AddZone(object interface{})error{
 	for k,v := range record{
 		op.cache[k] = v
 	}
+	logging.LogDnsServerController().WithField("Type", "AddResult").Warnln(op.cache)
 	return nil
 }
 
@@ -102,6 +103,7 @@ func(op *realDnsServer)RemoveZone(object interface{})error{
 
 		}
 	}
+	logging.LogDnsServerController().WithField("Type", "RemoveResult").Warnln(op.cache)
 	return nil
 }
 
@@ -114,6 +116,7 @@ func(op *realDnsServer)UpdateZone(object interface{})error{
 	for k,v := range record {
 		op.cache[k] = v
 	}
+	logging.LogDnsServerController().WithField("Type", "UpdateResult").Warnln(op.cache)
 	return nil
 }
 
@@ -149,20 +152,18 @@ func(op *realDnsServer)runClient(ctx context.Context,object <- chan mediator)err
 
 func(op* realDnsServer)handleRequestAndResponse(clientAddr net.Addr, request []byte){
 	// logfor del
-	logrus.Error("this is handleRequest AndResponse")
-	logrus.WithField("add", clientAddr).WithField("request", request).Error("this is handlerequest and response")
+
 	packet := gopacket.NewPacket(request, layers.LayerTypeDNS, gopacket.Default)
 	dnsPacket := packet.Layer(layers.LayerTypeDNS)
 	replyMess, _ := dnsPacket.(*layers.DNS)
 
-	records := map[string]string{"google.com":"192.168.1.1", }
 
 	var dnsAnswer layers.DNSResourceRecord
 	dnsAnswer.Type = layers.DNSTypeA
 	var ip string
 	var err error
 	var ok bool
-	ip, ok = records[string(replyMess.Questions[0].Name)]
+	ip, ok = op.cache[string(replyMess.Questions[0].Name)]
 	if !ok {
 		ip = "114.114.114.114"
 	}

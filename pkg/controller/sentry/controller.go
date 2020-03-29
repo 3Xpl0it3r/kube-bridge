@@ -2,15 +2,17 @@ package sentry
 
 import (
 	"context"
+	"l0calh0st.cn/k8s-bridge/configure"
 	"l0calh0st.cn/k8s-bridge/pkg/controller"
 	"l0calh0st.cn/k8s-bridge/pkg/logging"
 	"l0calh0st.cn/k8s-bridge/pkg/operator/sentry"
-	"sync"
 )
 
 const (
 	WORKQUEUESIZE = 100
 )
+
+var globalConig *configure.Config = configure.NewConfig()
 
 type KubeBridgeSyncController struct {
 	operator   sentry.Operator
@@ -28,10 +30,8 @@ func NewKubeBridgeSentryController(dispatcher controller.IDispatcher)controller.
 }
 
 func(c *KubeBridgeSyncController)Run(ctx context.Context)error{
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
 	go func() {
-		defer wg.Done()
+		logging.LogSentryController().Infof("Sentry Workqueue is working")
 		for true {
 			select {
 			case record := <- c.workQueue.GetEventChan():
@@ -43,9 +43,8 @@ func(c *KubeBridgeSyncController)Run(ctx context.Context)error{
 	}()
 
 	if err := c.operator.Run(ctx);err != nil {
-
+		logging.LogSentryController().WithError(err).Errorf("Run Sentry server Failed")
 	}
-	wg.Wait()
 	<- ctx.Done()
 	return ctx.Err()
 }

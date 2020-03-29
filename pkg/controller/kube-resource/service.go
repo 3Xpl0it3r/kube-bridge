@@ -68,7 +68,7 @@ func(c *kubeResourceServiceController)onAdd(object interface{}){
 		if err := c.operator.UpdateOperator(newObj);err != nil {
 			logging.LogKubeResourceController("service").WithError(err.Error()).Errorf("update service %s state failed\n", newObj.Name)
 		} else {
-			dnsname := newObj.Name+newObj.Namespace
+			dnsname := newObj.Name+"."+newObj.Namespace
 			c.dispatchor.Dispatch(controller.Event{
 				Type:   controller.EventAdded,
 				Object: dnsname,
@@ -98,7 +98,7 @@ func(c *kubeResourceServiceController)onDelete(obj interface{}){
 		logging.LogKubeResourceController("service").WithField("Event", "Delete").Infof("Delete Service/Ingress  %s Successfully", svcObj.Name)
 		c.dispatchor.Dispatch(controller.Event{
 			Type:   controller.EventDeleted,
-			Object: svcObj.Name,
+			Object: svcObj.Name + "." + svcObj.Namespace,
 		}, c)
 	}
 }

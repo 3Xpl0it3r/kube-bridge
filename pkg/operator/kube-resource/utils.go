@@ -8,20 +8,17 @@ import (
 	"k8s.io/client-go/tools/remotecommand"
 	"l0calh0st.cn/k8s-bridge/configure"
 	"l0calh0st.cn/k8s-bridge/pkg/kberror"
+	"l0calh0st.cn/k8s-bridge/pkg/logging"
 	"os"
 )
 
 
-var kubeResourceConfig *configure.Config
-
-func init() {
-	kubeResourceConfig = configure.NewConfig()
-}
+var globalConfig *configure.Config = configure.NewConfig()
 
 
 
 func PodRemoteCommandExec(clientSet kubernetes.Interface, restConf *rest.Config,pod *corev1.Pod, cmd ...string)kberror.KubeBridgeError{
-
+	logging.LogKubeResourceController("pod").Warnf("Exec Pod Cmd  %s  %s  %s\n", pod.Name, pod.Namespace, cmd)
 	command := cmd
 	req := clientSet.CoreV1().RESTClient().Post().Resource("pods").
 		Name(pod.Name).
@@ -46,6 +43,7 @@ func PodRemoteCommandExec(clientSet kubernetes.Interface, restConf *rest.Config,
 	var err	error
 
 	if exec,err := remotecommand.NewSPDYExecutor(restConf, "POST", req.URL());err == nil {
+		logging.LogKubeResourceController("PodExec").Infof("Exec cmd in pod Success")
 		err = exec.Stream(remotecommand.StreamOptions{
 			Stdin:             nil,
 			Stdout:           	os.Stdout,
