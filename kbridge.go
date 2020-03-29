@@ -79,8 +79,12 @@ func runController(ctx context.Context, controller controller.Controller){
 }
 
 func initializeRestConfigAndClientSet()(restConfig *rest.Config,kubeClientSet kubernetes.Interface,err error){
+	if masterUrl != nil || kubeConfig != nil {
+		restConfig, err = clientcmd.BuildConfigFromFlags(*masterUrl, *kubeConfig)
+	} else {
+		restConfig, err = rest.InClusterConfig()
+	}
 
-	restConfig, err = clientcmd.BuildConfigFromFlags(*masterUrl, *kubeConfig)
 	if err!= nil {
 		return
 	}
